@@ -4,36 +4,31 @@ JAMA Cloud（Jama Connect）を Claude Code から操作するための MCP サ�
 
 ## セットアップ
 
-### 1. 依存インストール
+### 1. 設定ファイルを作成する
+
+```bash
+mkdir -p ~/.config/mcp-jama
+curl -sL https://raw.githubusercontent.com/KeisukeShima/mcp-jama/main/config.json.example \
+  > ~/.config/mcp-jama/config.json
+```
+
+`~/.config/mcp-jama/config.json` を編集して JAMA Cloud の接続情報を入力する。
+
+### 2. Claude Code に登録する
+
+```bash
+claude mcp add jama -e JAMA_CONFIG=~/.config/mcp-jama/config.json -- uvx mcp-jama
+```
+
+以上でセットアップ完了。`uv` がインストールされていない場合は https://docs.astral.sh/uv/getting-started/installation/ を参照。
+
+### 開発者向け: ローカル実行
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. 設定ファイルを作成する
-
-```bash
 cp config.json.example config.json
-```
-
-`config.json` を編集して JAMA Cloud の接続情報を入力する。
-
-### 3. Claude Code に登録する
-
-Claude Code の MCP サーバー設定に追加する。`claude mcp add` コマンドまたは `~/.claude/settings.json` を直接編集する：
-
-```json
-{
-  "mcpServers": {
-    "jama": {
-      "command": "python",
-      "args": ["/absolute/path/to/mcp-jama/server.py"],
-      "env": {
-        "JAMA_CONFIG": "/absolute/path/to/mcp-jama/config.json"
-      }
-    }
-  }
-}
+# config.json を編集して接続情報を入力
+python server.py
 ```
 
 ## テスト実行
