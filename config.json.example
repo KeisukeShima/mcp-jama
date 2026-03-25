@@ -1,0 +1,7 @@
+{
+  "jama": {
+    "base_url": "https://<subdomain>.jamacloud.com",
+    "username": "your-username",
+    "password": "your-password"
+  }
+}
