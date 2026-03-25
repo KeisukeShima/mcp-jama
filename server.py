@@ -8,6 +8,7 @@ import tools.items as _items
 import tools.relations as _relations
 import tools.tests as _tests
 import tools.comments as _comments
+from tools.helpers import _err
 
 _MODULES = [_projects, _items, _relations, _tests, _comments]
 
@@ -32,10 +33,7 @@ async def _dispatch(name: str, arguments: dict) -> list[types.TextContent]:
     for mod in _MODULES:
         if any(t.name == name for t in mod.TOOLS):
             return mod.handle(name, arguments)
-    return [types.TextContent(
-        type="text",
-        text='{"error": "Unknown tool: ' + name + '", "code": 404}',
-    )]
+    return _err(f"Unknown tool: {name}", code=404)
 
 
 if __name__ == "__main__":

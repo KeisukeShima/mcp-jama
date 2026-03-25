@@ -20,7 +20,7 @@ cp config.json.example config.json
 
 ### 3. Claude Code に登録する
 
-`~/.claude/settings.json` に以下を追加する：
+Claude Code の MCP サーバー設定に追加する。`claude mcp add` コマンドまたは `~/.claude/settings.json` を直接編集する：
 
 ```json
 {
