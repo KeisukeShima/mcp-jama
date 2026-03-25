@@ -1,5 +1,7 @@
 # mcp-jama
 
+[![PyPI](https://img.shields.io/pypi/v/mcp-jama)](https://pypi.org/project/mcp-jama/)
+
 JAMA Cloud（Jama Connect）を Claude Code から操作するための MCP サーバー。
 
 ## セットアップ
