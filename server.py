@@ -36,5 +36,9 @@ async def _dispatch(name: str, arguments: dict) -> list[types.TextContent]:
     return _err(f"Unknown tool: {name}", code=404)
 
 
-if __name__ == "__main__":
+def main():
     asyncio.run(stdio_server(server))
+
+
+if __name__ == "__main__":
+    main()
