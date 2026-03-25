@@ -33,6 +33,13 @@ def test_create_test_plan_with_description(mock_client):
     )
 
 
+def test_create_test_plan_without_description(mock_client):
+    mock_client.post_test_plan.return_value = {"id": 12}
+    handle("create_test_plan", {"project_id": 1, "name": "Sprint 3"})
+    call_args = mock_client.post_test_plan.call_args
+    assert "description" not in call_args.kwargs
+
+
 def test_get_test_cycles(mock_client):
     mock_client.get_test_cycles.return_value = [{"id": 2}]
     result = handle("get_test_cycles", {"test_plan_id": 1})

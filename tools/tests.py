@@ -55,7 +55,7 @@ TOOLS: list[types.Tool] = [
             "type": "object",
             "properties": {
                 "test_run_id": {"type": "integer"},
-                "status": {"type": "string", "enum": list(VALID_STATUSES)},
+                "status": {"type": "string", "enum": sorted(VALID_STATUSES)},
                 "actual_results": {"type": "string"},
             },
             "required": ["test_run_id", "status", "actual_results"],
@@ -70,11 +70,10 @@ def handle(name: str, args: dict) -> list[types.TextContent]:
             plans = get_client().get_test_plans(project_id=args["project_id"])
             return _ok(plans, total=len(plans))
         if name == "create_test_plan":
-            plan = get_client().post_test_plan(
-                project_id=args["project_id"],
-                name=args["name"],
-                description=args.get("description", ""),
-            )
+            kwargs = dict(project_id=args["project_id"], name=args["name"])
+            if "description" in args:
+                kwargs["description"] = args["description"]
+            plan = get_client().post_test_plan(**kwargs)
             return _ok(plan)
         if name == "get_test_cycles":
             cycles = get_client().get_test_cycles(test_plan_id=args["test_plan_id"])
