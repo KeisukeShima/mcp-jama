@@ -49,3 +49,15 @@ def test_get_client_missing_file(monkeypatch):
     config._client = None
     with pytest.raises(FileNotFoundError):
         config.get_client()
+
+
+def test_get_client_malformed_config(tmp_path, monkeypatch):
+    """必須キーが欠けていると ValueError"""
+    cfg = {"wrong_key": {}}
+    cfg_file = tmp_path / "config.json"
+    cfg_file.write_text(json.dumps(cfg))
+    monkeypatch.setenv("JAMA_CONFIG", str(cfg_file))
+    import config
+    config._client = None
+    with pytest.raises(ValueError, match="config file"):
+        config.get_client()
