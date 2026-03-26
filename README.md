@@ -79,3 +79,5 @@ pytest tests/
 ## 認証
 
 Basic 認証のみ対応（v1）。SSO/SAML 環境では OAuth 認証が必要になる場合があります（将来バージョンで対応予定）。
+
+**必要なライセンス:** JAMA API を使用するには **Named Creator ライセンス** が必要です。Viewer ライセンスでは API アクセス時に `401 A named Creator license is required for access.` エラーが返されます。
