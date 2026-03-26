@@ -19,8 +19,11 @@ curl -sL https://raw.githubusercontent.com/KeisukeShima/mcp-jama/main/config.jso
 ### 2. Claude Code に登録する
 
 ```bash
-claude mcp add jama -e JAMA_CONFIG=~/.config/mcp-jama/config.json -- uvx mcp-jama
+claude mcp add jama -s user -e JAMA_CONFIG=~/.config/mcp-jama/config.json -- uvx mcp-jama
 ```
+
+その後、claudeのセッションを再起動する。
+
 
 以上でセットアップ完了。`uv` がインストールされていない場合は https://docs.astral.sh/uv/getting-started/installation/ を参照。
 
