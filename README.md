@@ -33,6 +33,23 @@ cp config.json.example config.json
 python server.py
 ```
 
+### PyPI への公開
+
+```bash
+# 1. pyproject.toml のバージョンを上げる
+# 2. 再ビルド
+rm -rf dist/
+hatch build
+# 3. アップロード（twine は uvx 経由で実行する）
+uvx twine upload dist/*
+# 4. コミット・プッシュ
+git add pyproject.toml
+git commit -m "bump: version x.y.z"
+git push
+```
+
+> **Note:** `twine upload` を直接実行すると `requests_toolbelt` の依存関係エラーが出るため、`uvx twine upload` を使う。
+
 ## テスト実行
 
 ```bash
