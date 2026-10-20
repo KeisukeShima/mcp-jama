@@ -87,14 +87,22 @@ def handle(name: str, args: dict) -> list[types.TextContent]:
                 project=args["project_id"],
                 item_type_id=args["item_type_id"],
                 child_item_type_id=None,
-                location={"id": args["parent_id"]},
+                location={"item": args["parent_id"]},
                 fields=args["fields"],
             )
             return _ok(item)
         if name == "update_item":
-            item = get_client().put_item(
+            client = get_client()
+            current = client.get_item(args["item_id"])
+            # PUT に必要なメタデータと、更新対象外のフィールドを保持する。
+            fields = {**current["fields"], **args["fields"]}
+            item = client.put_item(
+                project=current["project"],
                 item_id=args["item_id"],
-                fields=args["fields"],
+                item_type_id=current["itemType"],
+                child_item_type_id=current.get("childItemType"),
+                location=current["location"]["parent"],
+                fields=fields,
             )
             return _ok(item)
     except Exception as e:

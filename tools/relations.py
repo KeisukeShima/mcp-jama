@@ -50,7 +50,7 @@ def handle(name: str, args: dict) -> list[types.TextContent]:
             )
             return _ok(rel)
         if name == "delete_relationship":
-            get_client().delete_relationship(relationship_id=args["relationship_id"])
+            get_client().delete_relationships(relationship_id=args["relationship_id"])
             return _ok(None)
     except Exception as e:
         return _err(str(e))

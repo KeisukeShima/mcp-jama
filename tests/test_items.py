@@ -1,7 +1,7 @@
 import json
 import pytest
 import requests
-from py_jama_rest_client.client import JamaClient
+from tools.jama_client import JamaClient
 import config
 from tools.items import handle, TOOLS
 
@@ -110,16 +110,76 @@ def test_create_item_sends_expected_api_request(monkeypatch):
         "project": 1,
         "itemType": 42,
         "childItemType": None,
-        "location": {"parent": {"id": 7}},
+        "location": {"parent": {"item": 7}},
         "fields": {"name": "New Req"},
     }
 
 
 def test_update_item(mock_client):
+    mock_client.get_item.return_value = {
+        "project": 1, "itemType": 42,
+        "location": {"parent": {"item": 7}},
+        "fields": {"name": "Original"},
+    }
     mock_client.put_item.return_value = {"id": 10}
     result = handle("update_item", {"item_id": 10, "fields": {"name": "Updated"}})
     payload = json.loads(result[0].text)
     assert payload["data"]["id"] == 10
+
+
+@pytest.mark.parametrize("parent", [{"item": 7}, {"project": 1}])
+@pytest.mark.parametrize("child_type", [None, 43])
+def test_update_item_sends_expected_api_request(monkeypatch, parent, child_type):
+    """SDK の必須引数を満たし、未指定フィールドと配置を保持する。"""
+    current_item = {
+        "id": 10,
+        "project": 1,
+        "itemType": 42,
+        "location": {"parent": parent},
+        "fields": {"name": "Original", "description": "Keep this"},
+    }
+    if child_type is not None:
+        current_item["childItemType"] = child_type
+    sent_requests = []
+
+    def fake_send(session, request, **kwargs):
+        sent_requests.append(request)
+        response = requests.Response()
+        response.request = request
+        if request.method == "GET":
+            response.status_code = 200
+            response._content = json.dumps({"data": current_item}).encode()
+        elif request.method == "PUT":
+            response.status_code = 204
+            response._content = b""
+        else:
+            pytest.fail(f"Unexpected HTTP method: {request.method}")
+        return response
+
+    monkeypatch.setattr(requests.Session, "send", fake_send)
+    monkeypatch.setattr(config, "_client", JamaClient(
+        "https://jama.invalid", credentials=("test-user", "test-password"), oauth=False,
+    ))
+
+    result = handle("update_item", {"item_id": 10, "fields": {"name": "Updated"}})
+
+    assert json.loads(result[0].text) == {"data": 204}
+    assert [r.method for r in sent_requests] == ["GET", "PUT"]
+    assert all(r.url == "https://jama.invalid/rest/v1/items/10" for r in sent_requests)
+    assert json.loads(sent_requests[1].body) == {
+        "project": 1,
+        "itemType": 42,
+        "childItemType": child_type,
+        "location": {"parent": parent},
+        "fields": {"name": "Updated", "description": "Keep this"},
+    }
+
+
+def test_update_item_does_not_write_when_fetch_fails(mock_client):
+    mock_client.get_item.side_effect = Exception("Not found")
+    result = handle("update_item", {"item_id": 999, "fields": {"name": "Updated"}})
+    assert json.loads(result[0].text) == {"error": "Not found", "code": 500}
+    mock_client.put_item.assert_not_called()
 
 
 def test_api_error_returns_err(mock_client):

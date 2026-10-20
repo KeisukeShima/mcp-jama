@@ -1,6 +1,6 @@
 [project]
 name = "mcp-jama"
-version = "0.1.4"
+version = "0.1.5"
 readme = "README.md"
 urls = { "Source" = "https://github.com/KeisukeShima/mcp-jama" }
 requires-python = ">=3.10"
@@ -18,3 +18,15 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["tools", "server.py", "config.py"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/tools",
+    "/tests",
+    "/config.py",
+    "/server.py",
+    "/config.json.example",
+    "/requirements.txt",
+    "/README.md",
+    "/pyproject.toml",
+]

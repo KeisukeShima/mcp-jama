@@ -30,7 +30,7 @@ def test_create_relationship(mock_client):
 
 
 def test_delete_relationship(mock_client):
-    mock_client.delete_relationship.return_value = None
+    mock_client.delete_relationships.return_value = None
     result = handle("delete_relationship", {"relationship_id": 55})
     payload = json.loads(result[0].text)
     assert payload["data"] is None

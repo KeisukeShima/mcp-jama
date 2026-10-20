@@ -1,7 +1,7 @@
 import json
 import os
 import threading
-from py_jama_rest_client.client import JamaClient
+from tools.jama_client import JamaClient
 
 _client: JamaClient | None = None
 _lock = threading.Lock()
