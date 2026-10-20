@@ -84,10 +84,10 @@ def handle(name: str, args: dict) -> list[types.TextContent]:
             return _ok(items, total=len(items))
         if name == "create_item":
             item = get_client().post_item(
-                project_id=args["project_id"],
+                project=args["project_id"],
                 item_type_id=args["item_type_id"],
                 child_item_type_id=None,
-                location={"parent": {"id": args["parent_id"]}},
+                location={"id": args["parent_id"]},
                 fields=args["fields"],
             )
             return _ok(item)

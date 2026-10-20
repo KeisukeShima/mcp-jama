@@ -1,5 +1,8 @@
 import json
 import pytest
+import requests
+from py_jama_rest_client.client import JamaClient
+import config
 from tools.items import handle, TOOLS
 
 
@@ -72,6 +75,44 @@ def test_create_item(mock_client):
     })
     payload = json.loads(result[0].text)
     assert payload["data"]["id"] == 99
+
+
+def test_create_item_sends_expected_api_request(monkeypatch):
+    """実際の SDK を通し、引数名と parent の JSON 構造を検証する。"""
+    sent_requests = []
+
+    def fake_send(session, request, **kwargs):
+        sent_requests.append(request)
+        response = requests.Response()
+        response.status_code = 201
+        response._content = b'{"meta": {"id": 99}}'
+        response.request = request
+        return response
+
+    monkeypatch.setattr(requests.Session, "send", fake_send)
+    monkeypatch.setattr(config, "_client", JamaClient(
+        "https://jama.invalid", credentials=("test-user", "test-password"), oauth=False,
+    ))
+
+    result = handle("create_item", {
+        "project_id": 1,
+        "item_type_id": 42,
+        "parent_id": 7,
+        "fields": {"name": "New Req"},
+    })
+
+    assert json.loads(result[0].text) == {"data": 99}
+    assert len(sent_requests) == 1
+    request = sent_requests[0]
+    assert request.method == "POST"
+    assert request.url == "https://jama.invalid/rest/v1/items/"
+    assert json.loads(request.body) == {
+        "project": 1,
+        "itemType": 42,
+        "childItemType": None,
+        "location": {"parent": {"id": 7}},
+        "fields": {"name": "New Req"},
+    }
 
 
 def test_update_item(mock_client):
