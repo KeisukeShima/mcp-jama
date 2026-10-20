@@ -5,7 +5,7 @@ readme = "README.md"
 urls = { "Source" = "https://github.com/KeisukeShima/mcp-jama" }
 requires-python = ">=3.10"
 dependencies = [
-    "mcp>=1.7.0",
+    "mcp>=1.7.0,<2",
     "py-jama-rest-client>=1.16.0",
 ]
 

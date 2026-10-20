@@ -17,7 +17,7 @@ def get_client() -> JamaClient:
 
 
 def _load_client() -> JamaClient:
-    config_path = os.environ.get("JAMA_CONFIG", "./config.json")
+    config_path = os.path.expanduser(os.environ.get("JAMA_CONFIG", "./config.json"))
     with open(config_path) as f:
         cfg = json.load(f)
     try:

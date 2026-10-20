@@ -14,13 +14,36 @@ def test_get_items(mock_client):
     result = handle("get_items", {"project_id": 1})
     payload = json.loads(result[0].text)
     assert payload["meta"]["total"] == 2
-    mock_client.get_items.assert_called_once_with(project_id=1, start_at=0, max_results=50)
+    assert payload["data"] == [{"id": 10}, {"id": 11}]
+    mock_client.get_items.assert_called_once_with(project_id=1)
 
 
 def test_get_items_with_start_at(mock_client):
-    mock_client.get_items.return_value = []
-    handle("get_items", {"project_id": 1, "start_at": 50})
-    mock_client.get_items.assert_called_once_with(project_id=1, start_at=50, max_results=50)
+    mock_client.get_items.return_value = [{"id": i} for i in range(73)]
+    result = handle("get_items", {"project_id": 1, "start_at": 50})
+    payload = json.loads(result[0].text)
+    assert len(payload["data"]) == 23
+    assert payload["data"][0] == {"id": 50}
+    assert payload["data"][-1] == {"id": 72}
+    assert payload["meta"]["total"] == 73
+    mock_client.get_items.assert_called_once_with(project_id=1)
+
+
+def test_get_items_limits_response_to_one_page(mock_client):
+    mock_client.get_items.return_value = [{"id": i} for i in range(51)]
+    result = handle("get_items", {"project_id": 1})
+    payload = json.loads(result[0].text)
+    assert len(payload["data"]) == 50
+    assert payload["data"][0] == {"id": 0}
+    assert payload["data"][-1] == {"id": 49}
+    assert payload["meta"]["total"] == 51
+
+
+def test_get_items_start_at_past_end(mock_client):
+    mock_client.get_items.return_value = [{"id": 10}]
+    result = handle("get_items", {"project_id": 1, "start_at": 50})
+    payload = json.loads(result[0].text)
+    assert payload == {"data": [], "meta": {"total": 1}}
 
 
 def test_get_item(mock_client):

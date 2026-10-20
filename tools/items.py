@@ -70,10 +70,9 @@ def handle(name: str, args: dict) -> list[types.TextContent]:
         if name == "get_items":
             items = get_client().get_items(
                 project_id=args["project_id"],
-                start_at=args.get("start_at", 0),
-                max_results=50,
             )
-            return _ok(items, total=len(items))
+            start_at = args.get("start_at", 0)
+            return _ok(items[start_at:start_at + 50], total=len(items))
         if name == "get_item":
             item = get_client().get_item(args["item_id"])
             return _ok(item)

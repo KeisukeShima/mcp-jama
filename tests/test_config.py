@@ -24,6 +24,33 @@ def test_get_client_loads_config(tmp_path, monkeypatch):
         assert client is MockClient.return_value
 
 
+def test_get_client_expands_home_in_config_path(tmp_path, monkeypatch):
+    """MCP クライアントの設定で指定した ~/... を展開して読み込む。"""
+    cfg_file = tmp_path / ".config" / "mcp-jama" / "config.json"
+    cfg_file.parent.mkdir(parents=True)
+    cfg_file.write_text(json.dumps({
+        "jama": {
+            "base_url": "https://test.jamacloud.com",
+            "username": "u",
+            "password": "p",
+        },
+    }))
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("JAMA_CONFIG", "~/.config/mcp-jama/config.json")
+
+    import config
+    config._client = None
+
+    with patch("config.JamaClient") as MockClient:
+        client = config.get_client()
+        MockClient.assert_called_once_with(
+            "https://test.jamacloud.com",
+            credentials=("u", "p"),
+            oauth=False,
+        )
+        assert client is MockClient.return_value
+
+
 def test_get_client_returns_singleton(tmp_path, monkeypatch):
     """2回呼んでも同一インスタンスを返す"""
     cfg = {"jama": {"base_url": "https://test.jamacloud.com", "username": "u", "password": "p"}}
